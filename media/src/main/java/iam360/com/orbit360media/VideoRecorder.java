@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Class to manage the MediaRecorder, to record videos.
+ * Class to manage the MediaRecorder, to iam360.com.orbit360media.record videos.
  * Created by Charlotte on 22.11.2016.
  */
 public class VideoRecorder implements SurfaceProvider {

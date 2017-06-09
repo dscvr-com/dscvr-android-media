@@ -9,7 +9,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
-import com.iam360.views.record.RecorderPreviewListener;
+import iam360.com.record.RecorderPreviewListener;
 
 /**
  * Created by Emi on 15/05/2017.
