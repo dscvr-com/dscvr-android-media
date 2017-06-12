@@ -23,8 +23,6 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
-import com.iam360.facetracking.BluetoothCameraApplicationContext;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
 
     private static final String TAG = "RecorderPreviewViewBase";
+    private FocalLengthListener focalLengthListener;
 
     protected CameraDevice cameraDevice;
     protected HandlerThread backgroundThread;
@@ -56,6 +55,13 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
 
     public Size getVideoSize() {
         return previewSize;
+    }
+
+    public RecorderPreviewViewBase(Activity context, FocalLengthListener listener) {
+        super(context);
+        focalLengthListener = listener;
+        this.context = context;
+        syncRoot = new Object();
     }
 
     public RecorderPreviewViewBase(Activity context) {
@@ -92,7 +98,7 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         }
 
         @Override
-        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+        public void onDisconnected(@NonNull  CameraDevice cameraDevice) {
             // We close the camera device
             synchronized (syncRoot) {
                 Log.d(TAG, Thread.currentThread().getName());
@@ -400,7 +406,6 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
                     Size[] validOutputSizes = map.getOutputSizes(SurfaceTexture.class);
                     Size optimalSize = calculatePreviewSize(map, validOutputSizes, new Size(width, height));
 
-
                     if(this.getHeight() > this.getWidth()) {
                         //optimalSize = new Size(optimalSize.getHeight(), optimalSize.getWidth());
                         this.configureTransform(optimalSize.getHeight(), optimalSize.getWidth());
@@ -422,16 +427,14 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
 
                     for(SurfaceProvider target : externalRenderTargets) {
                         Log.d(TAG, "Creating external surface " + target.getClass().getName());
-                        target.createSurface(optimalSize, externalSurfaceCallback);
+                        initializeExternalSurfaceProvider(optimalSize, target, externalSurfaceCallback);
                     }
-
-                    // TODO: Do this somewhere else
+                    //TO be REALLY shure!
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
 
-                    // TODO Lotti: This needs to be refeactored via some listener or a getter.
-                    ((BluetoothCameraApplicationContext) getContext().getApplicationContext()).setFocalLength(characteristics);
+                    if(focalLengthListener!= null) focalLengthListener.setFocalLength(characteristics);
 
                     Log.d(TAG, "Opening camera...");
                     manager.openCamera(cameraId, stateCallback, null);
@@ -443,6 +446,10 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         } catch (CameraAccessException | NullPointerException | InterruptedException e) {
             Log.e(TAG, e.getMessage(), e);
         }
+    }
+
+    protected void initializeExternalSurfaceProvider(Size optimalSize, SurfaceProvider target, SurfaceProvider.SurfaceProviderCallback externalSurfaceCallback) {
+        target.createSurface(optimalSize, externalSurfaceCallback);
     }
 
     private void configureTransform(int width, int height) {
