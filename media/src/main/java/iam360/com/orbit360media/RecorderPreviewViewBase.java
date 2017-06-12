@@ -123,7 +123,6 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
             synchronized (syncRoot) {
-                // :(
                 Log.d(TAG, Thread.currentThread().getName());
                 Log.e(TAG, "Camera device error: " + error);
                 cameraOpenCloseLock.release();
