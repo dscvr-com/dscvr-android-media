@@ -45,6 +45,7 @@ public class InMemoryImageProvider implements SurfaceProvider {
     }
 
     public void startBackgroundThread() {
+        //1
         if(decoderHandler != null) {
             throw new IllegalStateException("Background thread already started");
         }
@@ -120,6 +121,7 @@ public class InMemoryImageProvider implements SurfaceProvider {
 
     @Override
     public void createSurface(Size size, SurfaceProviderCallback callback) {
+        //2
         if(decoderHandler == null) {
             throw new IllegalStateException("Background thread not started");
         }
@@ -158,6 +160,7 @@ public class InMemoryImageProvider implements SurfaceProvider {
     }
 
     public void startFrameFetching(RecorderPreviewListener dataListener) {
+        //3
         Log.d(TAG, Thread.currentThread().getName());
         Log.d(TAG, "Start frame fetching message...");
         if(decoderHandler == null) {

@@ -71,13 +71,22 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         syncRoot = new Object();
     }
 
-    protected void onCameraOpenend(CameraDevice device) { }
-    protected void onCameraClosed(CameraDevice device) { }
-    protected void onSessionCreated(CameraCaptureSession currentSession) { }
-    protected void onSessionDestroying(CameraCaptureSession currentSession) { }
+    protected void onCameraOpenend(CameraDevice device) {
+    }
+
+    protected void onCameraClosed(CameraDevice device) {
+    }
+
+    protected void onSessionCreated(CameraCaptureSession currentSession) {
+    }
+
+    protected void onSessionDestroying(CameraCaptureSession currentSession) {
+    }
 
     protected abstract Size calculatePreviewSize(StreamConfigurationMap map, Size[] supportedPreviewSizes, Size viewSize);
+
     protected abstract boolean canUseCamera(CameraCharacteristics characteristics);
+
     protected abstract SurfaceProvider[] createSurfacesProviders();
 
     private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
@@ -98,7 +107,7 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         }
 
         @Override
-        public void onDisconnected(@NonNull  CameraDevice cameraDevice) {
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
             // We close the camera device
             synchronized (syncRoot) {
                 Log.d(TAG, Thread.currentThread().getName());
@@ -165,7 +174,7 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
 
         Log.d(TAG, Thread.currentThread().getName());
         Log.d(TAG, "Starting Session");
-        if(!cameraReady() || !allSurfacesReady()) {
+        if (!cameraReady() || !allSurfacesReady()) {
             throw new IllegalStateException("Not ready for initialization");
         }
 
@@ -174,9 +183,9 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         previewSurface = new Surface(this.getSurfaceTexture());
         sessionSurfaces.add(new Surface(this.getSurfaceTexture()));
 
-        for(SurfaceProvider target : externalRenderTargets) {
+        for (SurfaceProvider target : externalRenderTargets) {
             Surface surf = target.getSurface();
-            if(surf == null) {
+            if (surf == null) {
                 throw new IllegalStateException("Surface passed was null");
             }
             sessionSurfaces.add(surf);
@@ -239,8 +248,8 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
         Log.d(TAG, Thread.currentThread().getName());
         Log.d(TAG, "closeExternalSurfaces");
 
-        for(SurfaceProvider target : externalRenderTargets) {
-            if(externalRenderTargetReady[Arrays.asList(externalRenderTargets).indexOf(target)]) {
+        for (SurfaceProvider target : externalRenderTargets) {
+            if (externalRenderTargetReady[Arrays.asList(externalRenderTargets).indexOf(target)]) {
                 target.destroySurface(externalSurfaceCallback);
             }
         }
@@ -310,7 +319,7 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
     protected void startPreview() {
         Log.d(TAG, Thread.currentThread().getName());
         Log.d(TAG, "Starting preview");
-        if(!cameraReady() || !allSurfacesReady() || !sessionReady()) {
+        if (!cameraReady() || !allSurfacesReady() || !sessionReady()) {
             throw new IllegalStateException("Not ready");
         }
 
@@ -352,7 +361,7 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
     }
 
     private boolean allSurfacesReady() {
-        for(boolean b : externalRenderTargetReady) if(!b) return false;
+        for (boolean b : externalRenderTargetReady) if (!b) return false;
         return true;
     }
 
@@ -399,13 +408,13 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
             for (String cameraId : manager.getCameraIdList()) {
                 Log.d(TAG, "Checking camera " + cameraId);
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-                if(characteristics != null && canUseCamera(characteristics)) {
+                if (characteristics != null && canUseCamera(characteristics)) {
                     Log.d(TAG, "Init'ing " + cameraId);
                     StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                     Size[] validOutputSizes = map.getOutputSizes(SurfaceTexture.class);
                     Size optimalSize = calculatePreviewSize(map, validOutputSizes, new Size(width, height));
 
-                    if(this.getHeight() > this.getWidth()) {
+                    if (this.getHeight() > this.getWidth()) {
                         //optimalSize = new Size(optimalSize.getHeight(), optimalSize.getWidth());
                         this.configureTransform(optimalSize.getHeight(), optimalSize.getWidth());
                     } else {
@@ -424,16 +433,18 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
                     externalRenderTargetReady = new boolean[externalRenderTargets.length];
                     Arrays.fill(externalRenderTargetReady, false);
 
-                    for(SurfaceProvider target : externalRenderTargets) {
+                    for (SurfaceProvider target : externalRenderTargets) {
                         Log.d(TAG, "Creating external surface " + target.getClass().getName());
                         initializeExternalSurfaceProvider(optimalSize, target, externalSurfaceCallback);
                     }
                     //TO be REALLY shure!
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        Log.e(TAG, "Missing Camera Permissions!");
                         return;
                     }
 
-                    if(focalLengthListener!= null) focalLengthListener.setFocalLength(characteristics);
+                    if (focalLengthListener != null)
+                        focalLengthListener.setFocalLength(characteristics);
 
                     Log.d(TAG, "Opening camera...");
                     manager.openCamera(cameraId, stateCallback, null);
@@ -460,12 +471,12 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
     public static Size chooseOptimalPreviewSize(Size[] choices, int minWidth, int minHeight, float aspectW, float aspectH) {
 
         // Collect the supported resolutions that are at least as big as the preview Surface
-        List<Size> aspectOk  = new ArrayList<>();
+        List<Size> aspectOk = new ArrayList<>();
 
         float aspect = aspectW / aspectH;
 
         for (Size option : choices) {
-            Log.d(TAG, String.format("Choice: %d x %d", option.getWidth(), option.getHeight())) ;
+            Log.d(TAG, String.format("Choice: %d x %d", option.getWidth(), option.getHeight()));
             if (Math.abs(option.getWidth() - option.getHeight() * aspect) < 1 &&
                     option.getWidth() > minWidth && option.getHeight() > minHeight) {
                 aspectOk.add(option);
@@ -490,11 +501,12 @@ public abstract class RecorderPreviewViewBase extends AutoFitTextureView {
                     (long) rhs.getWidth() * rhs.getHeight());
         }
     }
+
     public static class CompareSizesByAspect implements Comparator<Size> {
         @Override
         public int compare(Size lhs, Size rhs) {
             // We cast here to ensure the multiplications won't overflow
-            return (int)Math.signum((float) lhs.getHeight() / lhs.getWidth() - (float) rhs.getHeight() / rhs.getWidth());
+            return (int) Math.signum((float) lhs.getHeight() / lhs.getWidth() - (float) rhs.getHeight() / rhs.getWidth());
         }
     }
 
