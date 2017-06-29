@@ -213,13 +213,11 @@ public class CodecSurface
             mFrameSyncObject.notifyAll();
         }
     }
-    public byte[] fetchPixels() {
+    public ByteBuffer fetchPixels() {
         mPixelBuf.rewind();
         GLES20.glReadPixels(0, 0, mWidth, mHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
                 mPixelBuf);
-        byte[] result = new byte[sizeOfImageInRGBA];
-        mPixelBuf.get(result,0, sizeOfImageInRGBA);
-        return result;
+        return mPixelBuf.asReadOnlyBuffer();
     }
     /**
      * Saves the current frame to disk as a PNG image.
