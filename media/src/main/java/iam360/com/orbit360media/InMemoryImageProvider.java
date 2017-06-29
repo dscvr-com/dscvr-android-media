@@ -69,20 +69,17 @@ public class InMemoryImageProvider implements SurfaceProvider {
                         try {
                             if (codecSurface.awaitNewImage()) {
                                 codecSurface.drawImage(false);
-                                dataListener.imageDataReady(codecSurface.fetchPixels(), codecSurface.mWidth,
-                                        codecSurface.mHeight, CodecSurface.colorFormat);
-                                //Log.d(TAG, "Fetch frame done");
+                                //dataListener.imageDataReady(codecSurface.fetchPixels(), codecSurface.mWidth,
+                                //        codecSurface.mHeight, CodecSurface.colorFormat);
+                                Log.d(TAG, "Fetch frame done");
                             } else {
                                 Log.e(TAG, "Fetch frame failed");
-                                Thread.sleep(10, 0);
                             }
                         } catch (RuntimeException e) {
                             e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            Log.d(TAG, "Interrupt while waiting for image");
                         }
                         if(running) {
-                            decoderHandler.obtainMessage(FETCH_FRAME).sendToTarget();
+                            decoderHandler.sendMessageDelayed(decoderHandler.obtainMessage(FETCH_FRAME), 10);
                         }
                     } else {
                         Log.d(TAG, "Codec surface is gone. Exiting looper.");

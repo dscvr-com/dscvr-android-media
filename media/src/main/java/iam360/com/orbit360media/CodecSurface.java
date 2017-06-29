@@ -184,17 +184,7 @@ public class CodecSurface
         final int TIMEOUT_MS = 100;
         synchronized (mFrameSyncObject) {
             while (!mFrameAvailable) {
-                try {
-                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
-                    // stalling the test if it doesn't arrive.
-                    mFrameSyncObject.wait(TIMEOUT_MS);
-                    if (!mFrameAvailable) {
-                        return false;
-                    }
-                } catch (InterruptedException ie) {
-                    // shouldn't happen
-                    throw new RuntimeException(ie);
-                }
+                return false;
             }
             mFrameAvailable = false;
         }
