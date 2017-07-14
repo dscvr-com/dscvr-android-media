@@ -84,6 +84,7 @@ public class CodecSurface
         // but we should be able to get away with it here.
         mSurfaceTexture.setOnFrameAvailableListener(this);
         mSurfaceTexture.setDefaultBufferSize(mWidth, mHeight);
+        //mSurfaceTexture.
         mSurface = new Surface(mSurfaceTexture);
         mPixelBuf = ByteBuffer.allocateDirect(sizeOfImageInRGBA);
         mPixelBuf.order(ByteOrder.LITTLE_ENDIAN);

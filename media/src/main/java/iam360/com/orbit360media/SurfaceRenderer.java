@@ -35,7 +35,8 @@ class SurfaceRenderer {
                     "varying vec2 vTextureCoord;\n" +
                     "void main() {\n" +
                     "    gl_Position = uMVPMatrix * aPosition;\n" +
-                    "    vTextureCoord = vec2(1, 1) - (uSTMatrix * aTextureCoord).yx;\n" +
+                    "    vec2 tmp = (uSTMatrix * aTextureCoord).yx;\n" +
+                    "    vTextureCoord = vec2(1.0 - tmp.x, tmp.y);\n" +
                     "}\n";
     private static final String FRAGMENT_SHADER =
             "#extension GL_OES_EGL_image_external : require\n" +
