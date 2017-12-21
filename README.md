@@ -8,6 +8,4 @@ A sink to fetch RGB camera image data in high speed is also included.
 
 ## Usage
 
-
-
-
+This library can be used by subclassing `RecorderPreviewViewBase`. The library is tailored for the needs of DSCVR 360 and DSCVR facetracker, exact usage examples can be found there. 
